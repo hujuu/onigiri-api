@@ -17,10 +17,9 @@ for page in range(1, 25):
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # "search-filter-results" コンテナを取得
-    container = soup.find(class_="search-filter-results")
+    container = soup.find(class_="seeds-list")
     if not container:
-        print(f"ページ {page} に 'search-filter-results' が見つかりませんでした。")
+        print(f"ページ {page} に 'seeds-list' が見つかりませんでした。")
         continue
 
     items = container.find_all("li")
@@ -36,11 +35,14 @@ for page in range(1, 25):
         a_tag = item.find("a")
         link = a_tag["href"] if a_tag and "href" in a_tag.attrs else ""
 
-        # 説明文（例として最初の <p> タグから抽出）
-        p_tag = item.find("p")
+        p_tag = item.find("span", class_="seeds_example")
         description = p_tag.get_text(strip=True) if p_tag else ""
 
-        results.append({"title": title, "link": link, "description": description})
+        detail_tag = item.find("figcaption")
+        detail = detail_tag.get_text(strip=True) if detail_tag else ""
+
+        results.append({"title": title,
+                        "link": link, "description": description, "detail": detail})
 
 # 結果を JSON ファイルとして保存
 with open("results.json", "w", encoding="utf-8") as f:
